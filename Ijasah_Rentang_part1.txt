@@ -1,0 +1,2 @@
+1|sma|man 3 sleman
+2|smp|mtsn 6 sleman

@@ -1,0 +1,5 @@
+1|sma|man 3 sleman
+2|smp|mtsn 6 sleman
+3|sd|min 1 sleman
+4|tk|tk eka wijaya
+5|sma|man 1 jogja
