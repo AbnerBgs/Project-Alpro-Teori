@@ -16,23 +16,24 @@ struct Ijasah {
 Ijasah dataIjasah[100];
 int jumlahData = 0;
 string namaFile = ""; 
+int jumlahSimpanSort = 0; // Poin 4.k: Menghitung berapa kali sorting menyimpan ke file baru
 
 // Fungsi buat ngecek riwayat file teks yang pernah dibuat user
 void cekfile() {
     bool fileada = false;
     string fileMendaftar;
-    cout << "Daftar File yang Ada : " << endl;
-    cout << "--------------------" << endl;
+    cout << "Daftar FILE :" << endl;
+    cout << "====================" << endl;
 
     ifstream fileDaftar("daftarfile.txt");
     if (!fileDaftar.is_open()) {
         cout << "(Belum ada riwayat file yang disimpan)" << endl;
-        cout << "--------------------" << endl;
+        cout << "====================" << endl;
         return;
     } else {
         while (getline(fileDaftar, fileMendaftar)) {
             if (!fileMendaftar.empty()) {
-                cout << "- " << fileMendaftar << endl;
+                cout << fileMendaftar << endl;
                 fileada = true;
             }
         }
@@ -40,7 +41,7 @@ void cekfile() {
     if (!fileada) {
         cout << "(Belum ada riwayat file yang disimpan)" << endl;
     }
-    cout << "--------------------" << endl;
+    cout << "====================" << endl;
     fileDaftar.close();
 }
 
@@ -91,9 +92,9 @@ bool muatDataDariFile(string namaFileTarget) {
     return true;
 }
 
-// Tulis ulang semua isi array dataIjasah yang aktif ke file .txt
-void simpanData() {
-    ofstream file(namaFile);
+// Tulis ulang semua isi array dataIjasah yang aktif ke file .txt khusus
+void simpanData(string namaFileTujuan) {
+    ofstream file(namaFileTujuan);
     for (int i = 0; i < jumlahData; i++) {
         file << dataIjasah[i].noIjasah << "|";
         file << dataIjasah[i].jenisIjasah << "|";
@@ -105,7 +106,6 @@ void simpanData() {
 void inputData() {
     int jum;
     
-    cekfile();
     cout << "\n--- INPUT DATA ---" << endl;
     cout << "Masukkan Nama File Target (cth: Ijasah.txt): ";
     cin >> namaFile;
@@ -135,7 +135,7 @@ void inputData() {
         jumlahData++;
     }
 
-    simpanData();
+    simpanData(namaFile);
     catatKeDaftarFile(namaFile);
     
     cout << "\nData Berhasil Ditambahkan ke " << namaFile << "!" << endl;
@@ -356,6 +356,7 @@ void mergeSort(int l, int r) {
 void sorting() {
     int pil;
     cout << "MENU SORTING :" << endl;
+    cout << "=======================================" << endl;
     cout << "1. BUBBLE SORT" << endl;
     cout << "2. SELECTION SORT" << endl;
     cout << "3. INSERTION SORT" << endl;
@@ -363,12 +364,16 @@ void sorting() {
     cout << "5. QUICK SORT" << endl;
     cout << "6. MERGE SORT" << endl;
     cout << "7. Kembali ke MENU UTAMA" << endl;
+    cout << "=======================================" << endl;
     cout << "Pilih : ";
     cin >> pil;
 
     if (pil == 7 || pil < 1 || pil > 7) return;
 
+    cout << "\nDaftar FILE :" << endl;
+    cout << "====================" << endl;
     cekfile();
+    
     cout << "Pilih Nama File yang ingin di-Sorting: ";
     string fileTarget;
     cin >> fileTarget;
@@ -379,7 +384,8 @@ void sorting() {
     }
     namaFile = fileTarget;
 
-    cout << "\nData Awal Sebelum Sorting:" << endl;
+    // Poin 4.c: Tampil data sebelum disortir sesuai format aseli lu
+    cout << "\nData yang akan disorting dari file :" << endl;
     for(int i=0; i<jumlahData; i++) {
         cout << "- " << dataIjasah[i].noIjasah << " | " << dataIjasah[i].jenisIjasah << " | " << dataIjasah[i].namaSekolah << endl;
     }
@@ -393,22 +399,30 @@ void sorting() {
         case 6: mergeSort(0, jumlahData - 1); break;
     }
 
+    // Poin 4.d: Tampil data setelah disortir
     cout << "\nData berhasil diurutkan (Ascending)!" << endl;
-    simpanData(); // Tulis balik hasil urutan baru ke file
-    
     for(int i=0; i<jumlahData; i++) {
         cout << "  " << dataIjasah[i].noIjasah << " | " << dataIjasah[i].jenisIjasah << " | " << dataIjasah[i].namaSekolah << endl;
     }
+
+    // Poin 4.k: Menyimpan hasil ke file baru, mencatat nama file baru, dan hitung count simpan file
+    string namaFileBaru = "Sorted_" + fileTarget;
+    simpanData(namaFileBaru);
+    catatKeDaftarFile(namaFileBaru);
+    jumlahSimpanSort++;
+
+    cout << "\nHasil urutan disimpan ke file baru: " << namaFileBaru << endl;
+    cout << "Jumlah proses sorting yang menyimpan ke file baru saat ini = " << jumlahSimpanSort << endl;
 }
 
-// Bagi rata jumlah baris data ke beberapa file baru
-void splitBerdasarkanKategori(int jumlahFile) {
+// Menu Operasi File 1: Bagi rata data ke beberapa file baru berdasarkan kuantitas input user
+void splitBerdasarkanJumlahFile(int jumlahFile) {
     int dataPerFile = jumlahData / jumlahFile;
     int sisaData = jumlahData % jumlahFile;
     int indeksData = 0;
 
     for (int i = 1; i <= jumlahFile; i++) {
-        string namaFileBaru = "Split_Kategori_part" + to_string(i) + ".txt";
+        string namaFileBaru = "Split_Jumlah_part" + to_string(i) + ".txt";
         ofstream fileBaru(namaFileBaru);
 
         int batas = dataPerFile + (i == jumlahFile ? sisaData : 0);
@@ -425,41 +439,47 @@ void splitBerdasarkanKategori(int jumlahFile) {
         fileBaru.close();
         catatKeDaftarFile(namaFileBaru); 
     }
-    cout << "\nSukses memisahkan file!" << endl;
+    cout << "\nSukses memisahkan file berdasarkan jumlah!" << endl;
 }
 
-// Pisahin data ke file baru berdasarkan batasan angka noIjasah yang di-input user
-void splitBerdasarkanRentang(int jumlahFile) {
-    bubbleSort(); // Di-sort dulu biar datanya berurutan pas dipisah
+// Menu Operasi File 2: Memisahkan file berdasarkan kata kunci tingkat/kategori ijazah (SD/SMP/SMA)
+void splitBerdasarkanKategori() {
+    ofstream fileSD("Ijasah_SD.txt");
+    ofstream fileSMP("Ijasah_SMP.txt");
+    ofstream fileSMA("Ijasah_SMA.txt");
+    
+    int sd = 0, smp = 0, sma = 0;
 
-    for (int i = 1; i <= jumlahFile; i++) {
-        long batasBawah, batasAtas;
-        cout << "\n[File Bagian Ke-" << i << "]" << endl;
-        cout << "Batas Bawah No Ijasah (Mulai dari): "; cin >> batasBawah;
-        cout << "Batas Atas No Ijasah  (Sampai):     "; cin >> batasAtas;
-
-        string namaFileBaru = "Split_Rentang_part" + to_string(i) + ".txt";
-        ofstream fileBaru(namaFileBaru);
-        int hitung = 0;
-
-        for (int j = 0; j < jumlahData; j++) {
-            if (dataIjasah[j].noIjasah >= batasBawah && dataIjasah[j].noIjasah <= batasAtas) {
-                fileBaru << dataIjasah[j].noIjasah << "|";
-                fileBaru << dataIjasah[j].jenisIjasah << "|";
-                fileBaru << dataIjasah[j].namaSekolah << endl;
-                hitung++;
-            }
+    for (int j = 0; j < jumlahData; j++) {
+        string kat = dataIjasah[j].jenisIjasah;
+        
+        // Pengecekan string (insensitif huruf kapital/kecil)
+        if (kat.find("SD") != string::npos || kat.find("sd") != string::npos) {
+            fileSD << dataIjasah[j].noIjasah << "|" << dataIjasah[j].jenisIjasah << "|" << dataIjasah[j].namaSekolah << endl;
+            sd++;
+        } else if (kat.find("SMP") != string::npos || kat.find("smp") != string::npos) {
+            fileSMP << dataIjasah[j].noIjasah << "|" << dataIjasah[j].jenisIjasah << "|" << dataIjasah[j].namaSekolah << endl;
+            smp++;
+        } else if (kat.find("SMA") != string::npos || kat.find("sma") != string::npos || kat.find("SMK") != string::npos || kat.find("smk") != string::npos) {
+            fileSMA << dataIjasah[j].noIjasah << "|" << dataIjasah[j].jenisIjasah << "|" << dataIjasah[j].namaSekolah << endl;
+            sma++;
         }
-        fileBaru.close();
-        catatKeDaftarFile(namaFileBaru);
-        cout << "-> Tersimpan " << hitung << " data ke dalam " << namaFileBaru << endl;
     }
+    fileSD.close(); fileSMP.close(); fileSMA.close();
+
+    if (sd > 0) catatKeDaftarFile("Ijasah_SD.txt");
+    if (smp > 0) catatKeDaftarFile("Ijasah_SMP.txt");
+    if (sma > 0) catatKeDaftarFile("Ijasah_SMA.txt");
+
+    cout << "\n-> Berhasil Memisahkan Data:" << endl;
+    cout << "   - Ijasah_SD.txt  (" << sd << " data)" << endl;
+    cout << "   - Ijasah_SMP.txt (" << smp << " data)" << endl;
+    cout << "   - Ijasah_SMA.txt (" << sma << " data)" << endl;
 }
 
 void splitting() {
     string fileSumber;
-    cout << "--- OPERASI SPLITTING ---" << endl;
-    cekfile();
+    cout << "\n--- OPERASI SPLITTING ---" << endl;
     cout << "Pilih Nama File yang ingin di-Split: ";
     cin >> fileSumber;
 
@@ -469,28 +489,24 @@ void splitting() {
     }
     namaFile = fileSumber;
 
-    int jumlahFile, kriteria;
-    cout << "Mau dibagi menjadi berapa file? : "; cin >> jumlahFile;
-    if (jumlahFile <= 0) return;
+    int kriteria, jf;
+    cout << "\n===== MENU OPERASI FILE =====" << endl;
+    cout << "1. Splitting Berdasarkan Jumlah File (User Input)" << endl;
+    cout << "2. Splitting Berdasarkan Kategori (SD/SMP/SMA)" << endl;
+    cout << "3. Kembali ke Menu Utama" << endl;
+    cout << "Pilih Jenis Splitting: "; cin >> kriteria;
 
-    cout << "\nKriteria Pembagian Berkas:" << endl;
-    cout << "1. Kategori (Bagi Rata)" << endl;
-    cout << "2. Rentang Urutan No Ijasah" << endl;
-    cout << "Pilih Metode: "; cin >> kriteria;
-
-    if (kriteria == 1) splitBerdasarkanKategori(jumlahFile);
-    else if (kriteria == 2) splitBerdasarkanRentang(jumlahFile);
-    else cout << "Metode tidak valid!" << endl;
+    if (kriteria == 1) {
+        cout << "Mau dibagi menjadi berapa file? : "; cin >> jf;
+        if (jf > 0) splitBerdasarkanJumlahFile(jf);
+    }
+    else if (kriteria == 2) {
+        splitBerdasarkanKategori();
+    }
 }
 
 void operasiFile() {
-    int pilih;
-    cout << "\n===== MENU OPERASI FILE =====" << endl;
-    cout << "1. Splitting" << endl;
-    cout << "2. Kembali" << endl;
-    cout << "Pilih: "; cin >> pilih;
-
-    if (pilih == 1) splitting();
+    splitting();
 }
 
 int main() {
@@ -498,14 +514,16 @@ int main() {
     char ulang;
 
     do {
-        cout << "=== PROGRAM MANAJEMEN DATA IJASAH ===" << endl;
+        cout << "MENU :" << endl;
+        cout << "========================================" << endl;
         cout << "1. INPUT DATA" << endl;
         cout << "2. TAMPIL DATA" << endl;
         cout << "3. SEARCHING" << endl;
         cout << "4. SORTING" << endl;
-        cout << "5. OPERASI DATA" << endl;
+        cout << "5. OPERASI FILE" << endl;
         cout << "6. EXIT" << endl; 
-        cout << "PILIH : "; cin >> pilihan;
+        cout << "========================================" << endl;
+        cout << "Pilih : "; cin >> pilihan;
         
         switch (pilihan) {
             case 1: inputData(); break; 
