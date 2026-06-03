@@ -16,7 +16,7 @@ struct Ijasah {
 Ijasah dataIjasah[100];
 int jumlahData = 0;
 string namaFile = ""; 
-int jumlahSimpanSort = 0; // Poin 4.k: Menghitung berapa kali sorting menyimpan ke file baru
+int jumlahSimpanSort = 0; // Menghitung berapa kali sorting menyimpan ke file baru
 
 // Fungsi buat ngecek riwayat file teks yang pernah dibuat user
 void cekfile() {
@@ -384,7 +384,7 @@ void sorting() {
     }
     namaFile = fileTarget;
 
-    // Poin 4.c: Tampil data sebelum disortir sesuai format aseli lu
+    // Tampil data sebelum disortir sesuai format aseli lu
     cout << "\nData yang akan disorting dari file :" << endl;
     for(int i=0; i<jumlahData; i++) {
         cout << "- " << dataIjasah[i].noIjasah << " | " << dataIjasah[i].jenisIjasah << " | " << dataIjasah[i].namaSekolah << endl;
@@ -399,13 +399,13 @@ void sorting() {
         case 6: mergeSort(0, jumlahData - 1); break;
     }
 
-    // Poin 4.d: Tampil data setelah disortir
+    // Tampil data setelah disortir
     cout << "\nData berhasil diurutkan (Ascending)!" << endl;
     for(int i=0; i<jumlahData; i++) {
         cout << "  " << dataIjasah[i].noIjasah << " | " << dataIjasah[i].jenisIjasah << " | " << dataIjasah[i].namaSekolah << endl;
     }
 
-    // Poin 4.k: Menyimpan hasil ke file baru, mencatat nama file baru, dan hitung count simpan file
+    //  Menyimpan hasil ke file baru, mencatat nama file baru, dan hitung count simpan file
     string namaFileBaru = "Sorted_" + fileTarget;
     simpanData(namaFileBaru);
     catatKeDaftarFile(namaFileBaru);
